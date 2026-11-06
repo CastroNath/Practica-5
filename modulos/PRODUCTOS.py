@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from conexion import get_connection  # usa tu función de conexión existente
+from config.conexion import obtener_conexion
 
 def mostrar_productos():
     st.title("📦 Módulo de Productos")
