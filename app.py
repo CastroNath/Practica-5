@@ -34,9 +34,9 @@ if st.session_state["sesion_iniciada"]:
     if seleccion == "Ventas":
         mostrar_venta()
 
-    # Mostrar módulo de productos (NUEVO)
-    elif seleccion == "Productos":
-        mostrar_productos()
+    # Mostrar módulo de productos
+    elif seleccion == "Productos":      # NUEVO
+        mostrar_productos()             # NUEVO
 
     # Mostrar módulo de información
     elif seleccion == "Información":
