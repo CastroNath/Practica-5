@@ -2,6 +2,14 @@ import streamlit as st
 import pandas as pd
 from config.conexion import obtener_conexion
 
+# Edita esta lista con las categorías de tu proyecto
+CATEGORIAS = [
+    "Tecnología",
+    "Accesorios",
+    "Hogar",
+    "Oficina",
+    "Otros",
+]
 
 def mostrar_productos():
     st.header("Módulo de Productos")
@@ -62,7 +70,12 @@ def mostrar_productos():
     with tab2:
         with st.form("form_producto", clear_on_submit=True):
             nombre = st.text_input("Nombre del producto")
-            categoria = st.text_input("Categoría")
+            categoria = st.selectbox(
+                "Categoría",
+                CATEGORIAS,
+                index=None,
+                placeholder="Seleccione una categoría",
+            )
             precio = st.number_input("Precio ($)", min_value=0.0, step=0.5)
             stock = st.number_input("Stock", min_value=0, step=1)
             guardar = st.form_submit_button("Guardar producto")
@@ -70,6 +83,8 @@ def mostrar_productos():
         if guardar:
             if nombre.strip() == "":
                 st.warning("El nombre es obligatorio.")
+            elif categoria is None:
+                st.warning("Seleccione una categoría.")
             else:
                 conn = obtener_conexion()
                 if conn is not None:
@@ -78,7 +93,7 @@ def mostrar_productos():
                         cur.execute(
                             "INSERT INTO productos (nombre, categoria, precio, stock) "
                             "VALUES (%s, %s, %s, %s)",
-                            (nombre, categoria, precio, stock),
+                            (nombre.strip(), categoria, precio, stock),
                         )
                         conn.commit()
                         cur.close()
