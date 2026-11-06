@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from config.conexion import obtener_conexion
 
+
 def mostrar_productos():
     st.header("Módulo de Productos")
 
@@ -17,7 +18,7 @@ def mostrar_productos():
             cur = conn.cursor(dictionary=True)
             cur.execute(
                 "SELECT id, nombre, categoria, precio, stock "
-                "FROM productos ORDER BY id DESC"
+                "FROM productos ORDER BY id ASC"
             )
             filas = cur.fetchall()
             cur.close()
@@ -29,11 +30,32 @@ def mostrar_productos():
 
         df = pd.DataFrame(filas)
 
-        buscar = st.text_input("Buscar producto por nombre")
-        if buscar and not df.empty:
-            df = df[df["nombre"].str.contains(buscar, case=False, na=False)]
+        buscar = st.text_input("Buscar producto por ID")
+        if buscar:
+            if not buscar.strip().isdigit():
+                st.warning("Escribe solo números para buscar por ID.")
+            elif not df.empty:
+                df = df[df["id"] == int(buscar.strip())]
+                if df.empty:
+                    st.info("No se encontró ningún producto con ese ID.")
 
-        st.dataframe(df, use_container_width=True)
+        if not df.empty:
+            df["precio"] = df["precio"].astype(float)
+
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "id": "ID",
+                "nombre": "Nombre",
+                "categoria": "Categoría",
+                "precio": st.column_config.NumberColumn(
+                    "Precio", format="$%.2f"
+                ),
+                "stock": "Stock",
+            },
+        )
         st.caption(f"Total de productos: {len(df)}")
 
     # ---------- AGREGAR ----------
