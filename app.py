@@ -1,57 +1,40 @@
-import mysql.connector 
-
-import streamlit as st 
-
-st.title("Conexión con base de datos MySQL") 
-
-# Obtener las credenciales almacenadas en Streamlit Secrets 
-
-host = st.secrets["mysql"]["host"] 
-
-port = st.secrets["mysql"]["port"] 
-
-user = st.secrets["mysql"]["user"] 
-
-password = st.secrets["mysql"]["password"] 
-
-database = st.secrets["mysql"]["database"] 
-
-# Intentar establecer la conexión 
-
-try: 
-
-    conn = mysql.connector.connect( 
-
-        host=host, 
-
-        port=port, 
-
-        user=user, 
-
-        password=password, 
-
-        database=database 
-
-    ) 
-
-    # Verificar si la conexión fue exitosa 
-
-    if conn.is_connected(): 
-
-        st.success("Conexión exitosa a la base de datos MySQL.") 
-
-    else: 
-
-        st.error("No se pudo conectar a la base de datos.") 
-
-except mysql.connector.Error as err: 
-
-    # Mostrar el error si la conexión falla 
-
-    st.error(f"Error al conectar con la base de datos: {err}") 
-
-finally: 
-
-    if "conn" in locals() and conn.is_connected(): 
-
-        conn.close() 
+import streamlit as st
+from modulos.login import login
+from modulos.VENTAS import mostrar_venta
+# Inicializar variables de sesión
+if "sesion_iniciada" not in st.session_state:
+    st.session_state["sesion_iniciada"] = False
+if "usuario" not in st.session_state:
+    st.session_state["usuario"] = ""
+# Comprobar si el usuario inició sesión
+if st.session_state["sesion_iniciada"]:
+    st.sidebar.title("Menú")
+    st.sidebar.write(
+        f"Usuario: {st.session_state['usuario']}"
+    )
+    opciones = [
+        "Ventas",
+        "Información"
+    ]
+    seleccion = st.sidebar.selectbox(
+        "Seleccione una opción",
+        opciones
+    )
+    # Mostrar módulo de ventas
+    if seleccion == "Ventas":
+        mostrar_venta()
+    # Mostrar módulo de información
+    elif seleccion == "Información":
+        st.header("Información del sistema")
+        st.write(
+            "Aplicación desarrollada durante "
+            "el Laboratorio de SGI."
+        )
+    # Cerrar sesión
+    if st.sidebar.button("Cerrar sesión"):
+        st.session_state["sesion_iniciada"] = False
+        st.session_state["usuario"] = ""
+        st.rerun()
+else:
+    # Si no hay sesión iniciada, mostrar login
+    login()
